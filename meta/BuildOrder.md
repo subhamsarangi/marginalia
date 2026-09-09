@@ -6,18 +6,19 @@ A research-paper RAG assistant with discipline-aware answers, in-paper rubric ex
 
 ## 1. Repo + Env Setup
 - [x] Create GitHub repo, initialize with `.gitignore`, README stub
-- [ ] Set up Python venv, install core deps (FastAPI, LangChain, etc.)
-- [ ] Get GitHub Models token for free Azure OpenAI access
-- [ ] Set up `.env` for secrets (API keys, tokens)
+- [x] Set up Python venv, install core deps (FastAPI, LangChain, etc.)
+- [x] Get GitHub Models token for free Azure OpenAI access
+- [x] Set up `.env` for secrets (API keys, tokens)
 
 ## 2. Corpus
-- [ ] Source 8–10 open-access papers
-- [ ] Mix STEM (arXiv) with humanities (JSTOR open / Project MUSE open-access / public philosophy papers)
-- [ ] Store raw PDFs in a `corpus/` directory
+- [x] Source 8–10 open-access papers
+- [x] Mix STEM (arXiv) with humanities (JSTOR open / Project MUSE open-access / public philosophy papers)
+- [x] Store raw PDFs in a `corpus/` directory
 
 ## 3. Ingest + Section-Aware Chunking
-- [ ] Stand up GROBID via Docker (`lfoppiano/grobid`), called over HTTP — parses STEM/IMRaD papers into structured TEI-XML with real section boundaries (abstract/methods/results/discussion)
-- [ ] Add Docling (or pymupdf4llm) as fallback parser for humanities papers that don't fit IMRaD structure, or when GROBID underperforms/fails
+- [x] Stand up GROBID via Docker (`lfoppiano/grobid`), called over HTTP — parses STEM/IMRaD papers into structured TEI-XML with real section boundaries (abstract/methods/results/discussion)
+- [x] Add Docling (or pymupdf4llm) as fallback parser for humanities papers that don't fit IMRaD structure, or when GROBID underperforms/fails
+  - pymupdf4llm is the fast first pass; Docling is the deep fallback when pymupdf4llm output is degenerate (text < 500 chars, < 2 sections, or >40% single-char lines)
 - [ ] Run `RecursiveCharacterTextSplitter` (langchain-text-splitters) downstream, only on oversized sections — its job shrinks from "detect structure" to "size structure" now that GROBID/Docling do the actual section detection
 - [ ] Attach metadata to each chunk (paper ID, section name, page number, parser used)
 - [ ] Push chunks + embeddings to Qdrant Cloud (chosen over Azure AI Search — see dependencies.md for the tradeoff)

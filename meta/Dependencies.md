@@ -19,6 +19,8 @@
 - **GROBID** (self-hosted via Docker, free) — purpose-built ML parser for academic PDFs; extracts structured TEI-XML with real section boundaries (title, abstract, methods, results, discussion, references). Field standard — backs the Semantic Scholar/S2ORC corpus. Best for STEM/IMRaD-structured papers.
 - **Docling** (IBM, `docling` on PyPI) — genre-agnostic layout + table structure parser, stronger fallback for humanities papers that don't follow IMRaD structure or where GROBID's section model doesn't fit.
 
+**Fallback parse chain:** GROBID (primary, STEM/IMRaD) → pymupdf4llm (fast first-pass fallback) → Docling (deep fallback when pymupdf4llm output is degenerate). Degeneracy is detected by three heuristics: total text < 500 chars, fewer than 2 sections detected, or >40% of lines are single characters (garbled OCR).
+
 Chunking is two separate problems: **layout detection** (where does Methods start — GROBID/Docling's job) and **text splitting** (how do I size a long section into embeddable chunks — `langchain-text-splitters`' job, scoped down from "detect structure" to "size structure"). `RecursiveCharacterTextSplitter` still runs downstream of GROBID/Docling output for oversized sections.
 
 ## API layer
