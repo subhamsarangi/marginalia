@@ -22,7 +22,7 @@ A research-paper RAG assistant with discipline-aware answers, in-paper rubric ex
 - [x] Run `RecursiveCharacterTextSplitter` (langchain-text-splitters) downstream, only on oversized sections — its job shrinks from "detect structure" to "size structure" now that GROBID/Docling do the actual section detection
 - [x] Attach metadata to each chunk (paper ID, section name, page number, parser used)
 - [x] Push chunks + embeddings to Qdrant Cloud (chosen over Azure AI Search — see dependencies.md for the tradeoff)
-- [ ] Set up a weekly keep-alive ping (GitHub Actions cron) so the free Qdrant cluster doesn't auto-suspend from inactivity
+- [x] Set up a weekly keep-alive ping (GitHub Actions cron) so the free Qdrant cluster doesn't auto-suspend from inactivity
 
 ## 4. Discipline Classification
 - [ ] Deterministic pass: arXiv category tag, journal/venue name, citation style, section-header structure
