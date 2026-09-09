@@ -33,10 +33,10 @@ A research-paper RAG assistant with discipline-aware answers, in-paper rubric ex
 - [x] Cache discipline label per paper (classify once at ingestion, not per query)
   - Stored as `discipline`, `discipline_method`, and `discipline_confidence` fields in each chunk's Qdrant metadata. No separate cache needed.
 - [x] Add subtype classification: `stem_subtype` (empirical|review|unknown) and `humanities_subtype` (argumentative|historical|interpretive|unknown), both nullable
-  - Deterministic heuristics first (IMRaD keyword ratio, quote density/footnote patterns); LLM subtype only inside existing ambiguous fallback — no extra LLM pass
-  - Subtypes stored in Qdrant chunk metadata alongside discipline
-  - Each subtype maps to a concrete processing path difference (parser trust, rubric branch)
-- [ ] Smoke-test discipline classification (`smoke_test_02_classify.py`) — runs corpus PDFs through classifier, prints discipline + subtype + method for each; references `smoke_test_01_ingest.py` for parse step
+  - Deterministic heuristics in priority order: (1) title keywords (`review`, `narrative review`, `systematic review`, etc.), (2) methods section content signals (empirical: `n=`, `p<`, `we recruit` vs synthesis: `we review`, `PubMed`, `included studies`), (3) header partial match (`method`/`result` substrings)
+  - LLM subtype only inside existing ambiguous fallback — no extra LLM pass
+  - Title extracted from GROBID TEI-XML as `_title` section, used for classification only, not pushed to Qdrant
+- [x] Smoke-test discipline classification (`smoke_test_02_classify.py`) — runs corpus PDFs through classifier, prints discipline + subtype + method for each; references `smoke_test_01_ingest.py` for parse step
 
 ## 5. In-Paper Rubric Extraction
 - [ ] Structured LLM extraction pass per paper (JSON output, not conversational)

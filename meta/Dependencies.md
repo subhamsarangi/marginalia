@@ -7,7 +7,7 @@
 - `langchain-community` — misc loaders/integrations glue
 - `langchain-text-splitters` — section-aware chunking utilities
 
-**LLM provider: Google AI Studio (Gemini).** GitHub Models retired, switched to Google AI Studio free tier. Model: `gemini-2.5-flash`. Auth via `GOOGLE_API_KEY`.
+**LLM provider: Google AI Studio (Gemini).** GitHub Models retired, switched to Google AI Studio free tier. Model: `gemini-3.8-flash`. Auth via `GOOGLE_API_KEY`.
 
 ## Vector store
 - `langchain-qdrant` (1.1.x) — LangChain ↔ Qdrant integration
@@ -78,9 +78,13 @@ Two-field flat schema — subtypes are nullable depending on top-level disciplin
 - `unknown` → catch-all
 
 **Detection strategy:**
-- Deterministic subtype heuristics run first (IMRaD keyword ratio for STEM, quote density / footnote patterns for humanities) — no LLM cost
+- Deterministic subtype heuristics run first (no LLM cost), in priority order:
+  1. Title check — `review`, `narrative review`, `systematic review`, `meta-analysis`, `scoping review` in title → `review`
+  2. Methods section content — empirical signals (`n=`, `p<`, `sample size`, `we recruit`, etc.) vs synthesis signals (`we review`, `we search`, `PubMed`, `included studies`, etc.) → `empirical` or `review`
+  3. Header partial match — `method`/`result` substrings in headers (covers `Materials and Methods`, `Overall Results`, etc.)
 - LLM subtype classification only happens inside the existing ambiguous fallback call — no extra LLM pass
 - Subtype stored alongside discipline in Qdrant chunk metadata
+- Title extracted from GROBID TEI-XML `titleStmt/title` and stored as `_title` section (used for classification, not chunked into Qdrant)
 
 
 - Python 3.12 (broad compatibility across the langchain 1.x line, which supports 3.10–3.14).
