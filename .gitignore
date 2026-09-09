@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+
+# Venv
+.venv/
+
+# Env
+.env
+
+# Corpus / data
+corpus/
+
+# Qdrant local data
+qdrant_storage/
+
+# Pytest
+.pytest_cache/
+htmlcov/
+.coverage
+
+# Ruff
+.ruff_cache/
+
+# IDE
+.vscode/
+.idea/

@@ -1,0 +1,50 @@
+[project]
+name = "marginalia"
+version = "0.1.0"
+requires-python = "==3.12.*"
+dependencies = [
+    # LangChain core
+    "langchain>=1.0,<2.0",
+    "langchain-core",
+    "langchain-openai>=0.1.6",
+    "langchain-community",
+    "langchain-text-splitters",
+    # Vector store
+    "langchain-qdrant>=1.1",
+    "qdrant-client",
+    # PDF ingestion
+    "pypdf",
+    "pymupdf",
+    "pymupdf4llm",
+    "docling",
+    # API layer
+    "fastapi",
+    "uvicorn[standard]",
+    "python-multipart",
+    "sse-starlette",
+    # Config / secrets
+    "python-dotenv",
+    "pydantic-settings",
+    # External enrichment
+    "httpx",
+    "tenacity",
+    # Eval
+    "ragas",
+    "pandas",
+    # Guardrails / infra
+    "slowapi",
+    "cachetools",
+]
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "ruff",
+]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
