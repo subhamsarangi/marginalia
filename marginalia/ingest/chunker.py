@@ -8,7 +8,7 @@ CHUNK_OVERLAP = 150
 _splitter = RecursiveCharacterTextSplitter(chunk_size=CHUNK_SIZE, chunk_overlap=CHUNK_OVERLAP)
 
 
-def chunk_sections(sections: list[dict], pdf_path: Path, parser: str) -> list[dict]:
+def chunk_sections(sections: list[dict], pdf_path: Path, parser: str, discipline: dict | None = None) -> list[dict]:
     """Split oversized sections and attach metadata to every chunk."""
     paper_id = pdf_path.stem
     chunks = []
@@ -19,6 +19,9 @@ def chunk_sections(sections: list[dict], pdf_path: Path, parser: str) -> list[di
             "section": section.get("section", "unknown"),
             "page": section.get("page"),
             "parser": parser,
+            "discipline": discipline["discipline"] if discipline else "unknown",
+            "discipline_method": discipline["method"] if discipline else "unknown",
+            "discipline_confidence": discipline["confidence"] if discipline else 0.0,
         }
         if len(text) <= MAX_SECTION_SIZE:
             chunks.append({"text": text, "metadata": base_meta})

@@ -57,7 +57,7 @@ Deterministic pass uses three signals in priority order:
 2. Section-header overlap: ≥3 matches against known IMRaD headers → STEM, ≥2 matches against humanities headers → humanities
 3. Citation style: numbered refs `[1]` → STEM, author-date `(Smith, 2020)` → humanities
 
-LLM fallback is invoked only when deterministic pass returns `ambiguous`. Result is cached per paper at ingestion time.
+LLM fallback is invoked only when deterministic pass returns `ambiguous`. Result is cached as `discipline`, `discipline_method`, and `discipline_confidence` fields in each chunk's Qdrant metadata — no separate cache store needed, classified once at ingestion.
 
 
 - Python 3.12 (broad compatibility across the langchain 1.x line, which supports 3.10–3.14).

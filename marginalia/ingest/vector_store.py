@@ -28,5 +28,4 @@ def push_chunks(chunks: list[dict]):
         url=os.environ["QDRANT_URL"],
         api_key=os.environ["QDRANT_API_KEY"],
         collection_name=COLLECTION_NAME,
-        force_recreate=True,
     )

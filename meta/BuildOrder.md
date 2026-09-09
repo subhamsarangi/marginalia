@@ -28,8 +28,10 @@ A research-paper RAG assistant with discipline-aware answers, in-paper rubric ex
 ## 4. Discipline Classification
 - [x] Deterministic pass: arXiv category tag, journal/venue name, citation style, section-header structure
   - Signal priority: (1) arXiv ID pattern in text, (2) IMRaD section-header overlap (≥3 STEM headers or ≥2 humanities headers), (3) citation style (numbered refs = STEM, author-date = humanities). Not all papers are from arXiv so arXiv is just one of several signals.
-- [ ] LLM fallback for ambiguous or metadata-less documents, with confidence score
-- [ ] Cache discipline label per paper (classify once at ingestion, not per query)
+- [x] LLM fallback for ambiguous or metadata-less documents, with confidence score
+  - Uses Gemini (`gemini-3.8-flash`) via Google AI Studio. Invoked only when deterministic pass returns `ambiguous`.
+- [x] Cache discipline label per paper (classify once at ingestion, not per query)
+  - Stored as `discipline`, `discipline_method`, and `discipline_confidence` fields in each chunk's Qdrant metadata. No separate cache needed.
 
 ## 5. In-Paper Rubric Extraction
 - [ ] Structured LLM extraction pass per paper (JSON output, not conversational)
