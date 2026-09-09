@@ -2,7 +2,8 @@ name: Qdrant keep-alive
 
 on:
   schedule:
-    - cron: "0 9 * * 1"  # every Monday at 09:00 UTC
+    # Runs every 3 days at 09:00 UTC (keeps cluster active safely under 7-day limit)
+    - cron: "0 9 */3 * *"
   workflow_dispatch:
 
 jobs:
@@ -11,6 +12,9 @@ jobs:
     steps:
       - name: Ping Qdrant cluster
         run: |
-          curl -sf -o /dev/null \
-            -H "api-key: ${{ secrets.QDRANT_API_KEY }}" \
-            "${{ secrets.QDRANT_URL }}/collections"
+          # Strip trailing slash if present, then query /collections
+          URL="${QDRANT_URL%/}/collections"
+          curl -sf -o /dev/null -H "api-key: ${QDRANT_API_KEY}" "$URL"
+        env:
+          QDRANT_API_KEY: ${{ secrets.QDRANT_API_KEY }}
+          QDRANT_URL: ${{ secrets.QDRANT_URL }}
