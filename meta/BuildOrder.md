@@ -26,7 +26,8 @@ A research-paper RAG assistant with discipline-aware answers, in-paper rubric ex
 - [x] Smoke-test the ingest pipeline end-to-end on corpus PDFs (GROBID → fallback chain → chunker → Qdrant push)
 
 ## 4. Discipline Classification
-- [ ] Deterministic pass: arXiv category tag, journal/venue name, citation style, section-header structure
+- [x] Deterministic pass: arXiv category tag, journal/venue name, citation style, section-header structure
+  - Signal priority: (1) arXiv ID pattern in text, (2) IMRaD section-header overlap (≥3 STEM headers or ≥2 humanities headers), (3) citation style (numbered refs = STEM, author-date = humanities). Not all papers are from arXiv so arXiv is just one of several signals.
 - [ ] LLM fallback for ambiguous or metadata-less documents, with confidence score
 - [ ] Cache discipline label per paper (classify once at ingestion, not per query)
 

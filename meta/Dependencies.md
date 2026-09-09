@@ -49,9 +49,15 @@ Chunking is two separate problems: **layout detection** (where does Methods star
 - `pytest` — testing
 - `ruff` — lint + format (fast, single tool replaces flake8/black/isort)
 
----
+## Discipline Classification
+Deterministic pass uses three signals in priority order:
+1. arXiv ID pattern (`NNNN.NNNNN`) found in text → STEM
+2. Section-header overlap: ≥3 matches against known IMRaD headers → STEM, ≥2 matches against humanities headers → humanities
+3. Citation style: numbered refs `[1]` → STEM, author-date `(Smith, 2020)` → humanities
 
-## Notes
+LLM fallback is invoked only when deterministic pass returns `ambiguous`. Result is cached per paper at ingestion time.
+
+
 - Python 3.12 recommended (broad compatibility across the langchain 1.x line, which supports 3.10–3.14).
 - Azure OpenAI access via GitHub Models free tier uses the OpenAI-compatible endpoint, so `langchain-openai`'s `AzureChatOpenAI`/`ChatOpenAI` client works by pointing `base_url` at the GitHub Models endpoint — no separate Azure SDK needed for the free-tier path.
 - If moving to a paid Azure OpenAI resource later, add `azure-identity` for managed auth.
