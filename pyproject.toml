@@ -12,6 +12,7 @@ dependencies = [
     # Vector store
     "langchain-qdrant>=1.1",
     "qdrant-client",
+    "fastembed",
     # PDF ingestion
     "pypdf",
     "pymupdf",

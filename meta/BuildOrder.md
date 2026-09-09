@@ -23,6 +23,7 @@ A research-paper RAG assistant with discipline-aware answers, in-paper rubric ex
 - [x] Attach metadata to each chunk (paper ID, section name, page number, parser used)
 - [x] Push chunks + embeddings to Qdrant Cloud (chosen over Azure AI Search — see dependencies.md for the tradeoff)
 - [x] Set up a weekly keep-alive ping (GitHub Actions cron) so the free Qdrant cluster doesn't auto-suspend from inactivity
+- [x] Smoke-test the ingest pipeline end-to-end on corpus PDFs (GROBID → fallback chain → chunker → Qdrant push)
 
 ## 4. Discipline Classification
 - [ ] Deterministic pass: arXiv category tag, journal/venue name, citation style, section-header structure
