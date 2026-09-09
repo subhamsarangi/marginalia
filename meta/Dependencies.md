@@ -3,9 +3,11 @@
 ## Core orchestration
 - `langchain` (1.x) — retrieval chains, memory
 - `langchain-core` — shared abstractions (pinned in lockstep with the above)
-- `langchain-openai` (1.6.x) — Azure OpenAI / OpenAI-compatible chat + embeddings client
+- `langchain-google-genai` — Google Gemini chat client (replaces GitHub Models / langchain-openai)
 - `langchain-community` — misc loaders/integrations glue
 - `langchain-text-splitters` — section-aware chunking utilities
+
+**LLM provider: Google AI Studio (Gemini).** GitHub Models retired, switched to Google AI Studio free tier. Model: `gemini-2.5-flash`. Auth via `GOOGLE_API_KEY`.
 
 ## Vector store
 - `langchain-qdrant` (1.1.x) — LangChain ↔ Qdrant integration
@@ -58,7 +60,5 @@ Deterministic pass uses three signals in priority order:
 LLM fallback is invoked only when deterministic pass returns `ambiguous`. Result is cached per paper at ingestion time.
 
 
-- Python 3.12 recommended (broad compatibility across the langchain 1.x line, which supports 3.10–3.14).
-- Azure OpenAI access via GitHub Models free tier uses the OpenAI-compatible endpoint, so `langchain-openai`'s `AzureChatOpenAI`/`ChatOpenAI` client works by pointing `base_url` at the GitHub Models endpoint — no separate Azure SDK needed for the free-tier path.
-- If moving to a paid Azure OpenAI resource later, add `azure-identity` for managed auth.
+- Python 3.12 (broad compatibility across the langchain 1.x line, which supports 3.10–3.14).
 - GROBID is **not** a pip package — it runs as a separate Java service (Docker image `lfoppiano/grobid`), called over HTTP from the ingestion pipeline. `pymupdf4llm` and `docling` are Python-installable and act as fallbacks when GROBID isn't reachable or underperforms on non-IMRaD (humanities) papers.

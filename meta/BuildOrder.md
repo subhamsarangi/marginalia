@@ -7,8 +7,8 @@ A research-paper RAG assistant with discipline-aware answers, in-paper rubric ex
 ## 1. Repo + Env Setup
 - [x] Create GitHub repo, initialize with `.gitignore`, README stub
 - [x] Set up Python venv, install core deps (FastAPI, LangChain, etc.)
-- [x] Get GitHub Models token for free Azure OpenAI access
-- [x] Set up `.env` for secrets (API keys, tokens)
+- [x] Get GitHub Models token for free Azure OpenAI access ~~(retired — switched to Google AI Studio / Gemini)~~
+- [x] Set up `.env` for secrets (API keys, tokens) — `GOOGLE_API_KEY`, `QDRANT_URL`, `QDRANT_API_KEY`, `SEMANTIC_SCHOLAR_API_KEY`
 
 ## 2. Corpus
 - [x] Source 8–10 open-access papers

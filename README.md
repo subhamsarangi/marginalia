@@ -5,7 +5,7 @@ A research-paper RAG assistant with discipline-aware answers, in-paper rubric ex
 **Repo:** https://github.com/subhamsarangi/marginalia.git
 
 ## Stack
-- LangChain 1.x + LangChain-OpenAI (GitHub Models free tier)
+- LangChain 1.x + LangChain-Google-GenAI (Google AI Studio free tier, Gemini)
 - Qdrant Cloud (free tier) — vector store
 - GROBID — section-aware PDF parsing for STEM papers
 - Docling / pymupdf4llm — fallback parser for humanities papers
