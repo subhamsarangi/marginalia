@@ -20,6 +20,8 @@ def chunk_sections(sections: list[dict], pdf_path: Path, parser: str, discipline
             "page": section.get("page"),
             "parser": parser,
             "discipline": discipline["discipline"] if discipline else "unknown",
+            "stem_subtype": discipline.get("stem_subtype") if discipline else None,
+            "humanities_subtype": discipline.get("humanities_subtype") if discipline else None,
             "discipline_method": discipline["method"] if discipline else "unknown",
             "discipline_confidence": discipline["confidence"] if discipline else 0.0,
         }

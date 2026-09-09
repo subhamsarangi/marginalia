@@ -21,19 +21,25 @@ def classify_with_llm(sections: list[dict]) -> dict:
     section_names = [s["section"] for s in sections]
     sample_text = " ".join(s["text"][:300] for s in sections[:3])
 
-    prompt = f"""You are classifying an academic paper as either STEM or humanities.
+    prompt = f"""You are classifying an academic paper's discipline and subtype.
 
 Section headers: {section_names}
 Text sample: {sample_text}
 
 Reply with a JSON object only, no markdown:
-{{"discipline": "stem" or "humanities", "confidence": 0.0-1.0, "reason": "one sentence"}}"""
+{{"discipline": "stem" or "humanities", "stem_subtype": "empirical"|"review"|"unknown"|null, "humanities_subtype": "argumentative"|"historical"|"interpretive"|"unknown"|null, "confidence": 0.0-1.0, "reason": "one sentence"}}"""
 
     response = _get_llm().invoke([HumanMessage(content=prompt)])
     import json
-    result = json.loads(response.content)
+    content = response.content
+    if isinstance(content, list):
+        content = "".join(c if isinstance(c, str) else c.get("text", "") for c in content)
+    content = content.strip().removeprefix("```json").removeprefix("```").removesuffix("```").strip()
+    result = json.loads(content)
     return {
         "discipline": result["discipline"],
+        "stem_subtype": result.get("stem_subtype"),
+        "humanities_subtype": result.get("humanities_subtype"),
         "method": "llm",
         "confidence": result["confidence"],
         "reason": result.get("reason", ""),

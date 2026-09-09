@@ -23,7 +23,7 @@ A research-paper RAG assistant with discipline-aware answers, in-paper rubric ex
 - [x] Attach metadata to each chunk (paper ID, section name, page number, parser used)
 - [x] Push chunks + embeddings to Qdrant Cloud (chosen over Azure AI Search — see dependencies.md for the tradeoff)
 - [x] Set up a weekly keep-alive ping (GitHub Actions cron) so the free Qdrant cluster doesn't auto-suspend from inactivity
-- [x] Smoke-test the ingest pipeline end-to-end on corpus PDFs (GROBID → fallback chain → chunker → Qdrant push)
+- [x] Smoke-test the ingest pipeline end-to-end on corpus PDFs (`smoke_test_01_ingest.py` — GROBID → fallback chain → chunker → Qdrant push)
 
 ## 4. Discipline Classification
 - [x] Deterministic pass: arXiv category tag, journal/venue name, citation style, section-header structure
@@ -32,18 +32,25 @@ A research-paper RAG assistant with discipline-aware answers, in-paper rubric ex
   - Uses Gemini (`gemini-3.8-flash`) via Google AI Studio. Invoked only when deterministic pass returns `ambiguous`.
 - [x] Cache discipline label per paper (classify once at ingestion, not per query)
   - Stored as `discipline`, `discipline_method`, and `discipline_confidence` fields in each chunk's Qdrant metadata. No separate cache needed.
+- [x] Add subtype classification: `stem_subtype` (empirical|review|unknown) and `humanities_subtype` (argumentative|historical|interpretive|unknown), both nullable
+  - Deterministic heuristics first (IMRaD keyword ratio, quote density/footnote patterns); LLM subtype only inside existing ambiguous fallback — no extra LLM pass
+  - Subtypes stored in Qdrant chunk metadata alongside discipline
+  - Each subtype maps to a concrete processing path difference (parser trust, rubric branch)
+- [ ] Smoke-test discipline classification (`smoke_test_02_classify.py`) — runs corpus PDFs through classifier, prints discipline + subtype + method for each; references `smoke_test_01_ingest.py` for parse step
 
 ## 5. In-Paper Rubric Extraction
 - [ ] Structured LLM extraction pass per paper (JSON output, not conversational)
 - [ ] STEM branch: sample size, control/comparison group, effect size vs. p-value only, limitations section present, funding/conflict of interest disclosed
 - [ ] Humanities branch: engagement with existing scholarship, primary vs. secondary source ratio, counterargument acknowledgment, scope-to-evidence proportionality
 - [ ] Store as flags/signals, not quality verdicts
+- [ ] Smoke-test rubric extraction (`smoke_test_03_rubric.py`) — runs one STEM and one humanities paper, prints extracted rubric JSON; references `smoke_test_01_ingest.py` for parse step
 
 ## 6. External Enrichment (async, per-paper)
 - [ ] Primary source: Semantic Scholar API for citation context and sentiment (approving vs. critical citations)
 - [ ] Secondary source: web search for pop-sci coverage (Nature News, The Conversation, Quanta) and social/discourse signals, with credibility filtering
 - [ ] Every external claim stored with a source link — no summarizing without citation
 - [ ] Run once per paper (on ingestion or on-demand), cache the result
+- [ ] Smoke-test external enrichment (`smoke_test_04_enrichment.py`) — runs one paper through Semantic Scholar + web search, prints returned signals with source links
 
 ## 7. RAG Core + Answer-Style Prompt
 - [ ] Retrieval chain: query → retrieve chunks → prompt LLM → cited answer
@@ -51,11 +58,13 @@ A research-paper RAG assistant with discipline-aware answers, in-paper rubric ex
 - [ ] Preserve source hedging language (don't flatten "suggests" into "proves")
 - [ ] Clear separation in output: "within the paper" vs. "external reception"
 - [ ] Cross-paper synthesis with contradictions flagged explicitly, not blended
+- [ ] Smoke-test RAG core (`smoke_test_05_rag.py`) — asks one question, prints retrieved chunks + final answer with citations; references `smoke_test_01_ingest.py` for ingested data
 
 ## 8. API Layer
 - [ ] FastAPI backend
 - [ ] Streaming responses
 - [ ] Endpoints: `/ask`, `/rubric/{paper_id}`, `/enrichment/{paper_id}` (check external commentary)
+- [ ] Smoke-test API layer (`smoke_test_06_api.py`) — spins up test client, hits each endpoint, prints responses
 
 ## 9. Guardrails
 - [ ] Rate limiting per user/IP

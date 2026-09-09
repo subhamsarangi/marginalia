@@ -59,6 +59,29 @@ Deterministic pass uses three signals in priority order:
 
 LLM fallback is invoked only when deterministic pass returns `ambiguous`. Result is cached as `discipline`, `discipline_method`, and `discipline_confidence` fields in each chunk's Qdrant metadata — no separate cache store needed, classified once at ingestion.
 
+### Subtype classification
+Two-field flat schema — subtypes are nullable depending on top-level discipline:
+- `stem_subtype`: `empirical` | `review` | `unknown` | `null`
+- `humanities_subtype`: `argumentative` | `historical` | `interpretive` | `unknown` | `null`
+
+**Why these subtypes earn their place (each maps to a different processing path):**
+
+`stem_subtype`:
+- `empirical` → GROBID IMRaD parsing trusted at full confidence, clean Methods/Results boundaries expected
+- `review` → GROBID still runs but section labels won't map to IMRaD cleanly; flag for Docling fallback heuristic check rather than trusting GROBID structure blindly
+- `unknown` → route conservatively through Docling; guessing wrong on IMRaD assumptions is worse than a generic fallback
+
+`humanities_subtype` (axis is rhetorical structure, not evidence structure):
+- `argumentative` → linear thesis-building; chunk by argument/section headers; footnotes carry citation weight
+- `historical` → may contain embedded primary-source quotations, timelines, tables/demographic data; flag for Docling's table handling
+- `interpretive` → quote-dense, may reference an external work (novel, film, artwork) not in the paper itself; matters for citation/quote extraction downstream
+- `unknown` → catch-all
+
+**Detection strategy:**
+- Deterministic subtype heuristics run first (IMRaD keyword ratio for STEM, quote density / footnote patterns for humanities) — no LLM cost
+- LLM subtype classification only happens inside the existing ambiguous fallback call — no extra LLM pass
+- Subtype stored alongside discipline in Qdrant chunk metadata
+
 
 - Python 3.12 (broad compatibility across the langchain 1.x line, which supports 3.10–3.14).
 - GROBID is **not** a pip package — it runs as a separate Java service (Docker image `lfoppiano/grobid`), called over HTTP from the ingestion pipeline. `pymupdf4llm` and `docling` are Python-installable and act as fallbacks when GROBID isn't reachable or underperforms on non-IMRaD (humanities) papers.

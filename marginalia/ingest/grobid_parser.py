@@ -22,11 +22,28 @@ def _extract_sections(tei_xml: str) -> list[dict]:
     root = ET.fromstring(tei_xml)
     sections = []
 
+    # Extract title
+    title_el = root.find(f".//{{{TEI_NS}}}titleStmt/{{{TEI_NS}}}title")
+    title = title_el.text.strip() if title_el is not None and title_el.text else ""
+    if title:
+        sections.append({"section": "_title", "text": title})
+
+    # Extract abstract
+    abstract = root.find(f".//{{{TEI_NS}}}abstract")
+    if abstract is not None:
+        text = " ".join(p.text.strip() for p in abstract.iter(f"{{{TEI_NS}}}p") if p.text)
+        if text:
+            sections.append({"section": "abstract", "text": text})
+
     for div in root.iter(f"{{{TEI_NS}}}div"):
         head = div.find(f"{{{TEI_NS}}}head")
-        section_name = head.text.strip() if head is not None and head.text else "unknown"
+        if head is not None and head.text:
+            section_name = head.text.strip()
+        else:
+            n = div.get("n", "")
+            section_name = f"section_{n}" if n else None
         text = " ".join(p.text.strip() for p in div.iter(f"{{{TEI_NS}}}p") if p.text)
-        if text:
+        if text and section_name:
             sections.append({"section": section_name, "text": text})
 
     return sections
