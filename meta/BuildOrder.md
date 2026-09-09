@@ -20,7 +20,7 @@ A research-paper RAG assistant with discipline-aware answers, in-paper rubric ex
 - [x] Add Docling (or pymupdf4llm) as fallback parser for humanities papers that don't fit IMRaD structure, or when GROBID underperforms/fails
   - pymupdf4llm is the fast first pass; Docling is the deep fallback when pymupdf4llm output is degenerate (text < 500 chars, < 2 sections, or >40% single-char lines)
 - [x] Run `RecursiveCharacterTextSplitter` (langchain-text-splitters) downstream, only on oversized sections — its job shrinks from "detect structure" to "size structure" now that GROBID/Docling do the actual section detection
-- [ ] Attach metadata to each chunk (paper ID, section name, page number, parser used)
+- [x] Attach metadata to each chunk (paper ID, section name, page number, parser used)
 - [ ] Push chunks + embeddings to Qdrant Cloud (chosen over Azure AI Search — see dependencies.md for the tradeoff)
 - [ ] Set up a weekly keep-alive ping (GitHub Actions cron) so the free Qdrant cluster doesn't auto-suspend from inactivity
 
