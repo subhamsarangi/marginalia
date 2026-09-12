@@ -5,6 +5,9 @@ from langchain_core.messages import HumanMessage
 
 _llm = None
 
+INPUT_COST_PER_M = 0.75
+OUTPUT_COST_PER_M = 3.75
+
 
 def _get_llm():
     global _llm
@@ -59,22 +62,37 @@ def _parse_response(response) -> dict:
     return json.loads(content)
 
 
-def extract_rubric(sections: list[dict], discipline: str, stem_subtype: str | None = None) -> dict:
-    """Extract rubric signals from paper sections. Returns a dict of flags."""
-    # Use first 6 sections to stay within token limits
+def _calc_cost(usage_metadata: dict) -> dict:
+    input_tokens = usage_metadata.get("input_tokens", 0)
+    output_tokens = usage_metadata.get("output_tokens", 0)
+    thinking_tokens = usage_metadata.get("thinking_tokens", 0) or 0
+    cost = (input_tokens / 1_000_000 * INPUT_COST_PER_M) + \
+           ((output_tokens + thinking_tokens) / 1_000_000 * OUTPUT_COST_PER_M)
+    return {
+        "input_tokens": input_tokens,
+        "output_tokens": output_tokens,
+        "thinking_tokens": thinking_tokens,
+        "cost_usd": round(cost, 6),
+    }
+
+
+def extract_rubric(sections: list[dict], discipline: str, stem_subtype: str | None = None) -> tuple[dict, dict]:
+    """
+    Extract rubric signals from paper sections.
+    Returns (rubric dict, usage dict).
+    """
     text = "\n\n".join(
         f"[{s['section']}]\n{s['text']}"
         for s in sections
         if not s["section"].startswith("_")
     )[:8000]
 
-    if discipline == "stem":
-        prompt = STEM_PROMPT.format(text=text)
-    else:
-        prompt = HUMANITIES_PROMPT.format(text=text)
+    prompt = STEM_PROMPT.format(text=text) if discipline == "stem" else HUMANITIES_PROMPT.format(text=text)
 
     response = _get_llm().invoke([HumanMessage(content=prompt)])
     rubric = _parse_response(response)
     rubric["discipline"] = discipline
     rubric["stem_subtype"] = stem_subtype
-    return rubric
+
+    usage = _calc_cost(response.usage_metadata or {})
+    return rubric, usage

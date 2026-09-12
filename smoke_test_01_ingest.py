@@ -4,10 +4,14 @@ Runs one PDF through parse → classify → chunk → Qdrant push.
 Usage: uv run python smoke_test_01_ingest.py corpus/A001.pdf
 """
 import sys
+import httpx
 from pathlib import Path
 from dotenv import load_dotenv
 
 load_dotenv()
+
+from grobid_check import wait_for_grobid
+wait_for_grobid()
 
 from marginalia.ingest.grobid_parser import parse_with_grobid
 from marginalia.ingest.fallback_parser import parse_with_pymupdf

@@ -3,10 +3,15 @@ Smoke test 02 — Discipline classification.
 Runs all corpus PDFs through classify and prints discipline + subtype for each.
 Usage: uv run python smoke_test_02_classify.py
 """
+import sys
+import httpx
 from pathlib import Path
 from dotenv import load_dotenv
 
 load_dotenv()
+
+from grobid_check import wait_for_grobid
+wait_for_grobid()
 
 from smoke_test_01_ingest import parse_pdf
 from marginalia.classify.classifier import get_discipline
