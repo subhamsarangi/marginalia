@@ -39,10 +39,11 @@ A research-paper RAG assistant with discipline-aware answers, in-paper rubric ex
 - [x] Smoke-test discipline classification (`smoke_test_02_classify.py`) — runs corpus PDFs through classifier, prints discipline + subtype + method for each; references `smoke_test_01_ingest.py` for parse step
 
 ## 5. In-Paper Rubric Extraction
-- [ ] Structured LLM extraction pass per paper (JSON output, not conversational)
-- [ ] STEM branch: sample size, control/comparison group, effect size vs. p-value only, limitations section present, funding/conflict of interest disclosed
-- [ ] Humanities branch: engagement with existing scholarship, primary vs. secondary source ratio, counterargument acknowledgment, scope-to-evidence proportionality
-- [ ] Store as flags/signals, not quality verdicts
+- [x] Structured LLM extraction pass per paper (JSON output, not conversational)
+- [x] STEM branch: sample size, control/comparison group, effect size vs. p-value only, limitations section present, funding/conflict of interest disclosed
+- [x] Humanities branch: engagement with existing scholarship, primary vs. secondary source ratio, counterargument acknowledgment, scope-to-evidence proportionality
+- [x] Store as flags/signals, not quality verdicts
+  - Stored in Azure Cosmos DB (`marginalia` db, `rubrics` container, partition key `/paper_id`)
 - [ ] Smoke-test rubric extraction (`smoke_test_03_rubric.py`) — runs one STEM and one humanities paper, prints extracted rubric JSON; references `smoke_test_01_ingest.py` for parse step
 
 ## 6. External Enrichment (async, per-paper)
