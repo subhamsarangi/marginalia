@@ -4,6 +4,7 @@ Runs one STEM and one humanities paper through rubric extraction and prints resu
 Depends on: smoke_test_01_ingest.py (parse), smoke_test_02_classify.py (classify)
 Usage: uv run python smoke_test_03_rubric.py
 """
+
 import json
 import sys
 import httpx
@@ -13,6 +14,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from grobid_check import wait_for_grobid
+
 wait_for_grobid()
 
 from smoke_test_01_ingest import parse_pdf
@@ -20,24 +22,35 @@ from marginalia.classify.classifier import get_discipline
 from marginalia.rubric.extractor import extract_rubric
 from marginalia.rubric.store import save_rubric, get_rubric
 
-total_usage = {"input_tokens": 0, "output_tokens": 0, "thinking_tokens": 0, "cost_usd": 0.0}
+total_usage = {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "thinking_tokens": 0,
+    "cost_usd": 0.0,
+}
 
 
 def run(pdf_path: Path):
     print(f"\n--- {pdf_path.name} ---")
-    sections, parser = parse_pdf(pdf_path)
+    sections, parser, identifiers = parse_pdf(pdf_path)
     if not sections:
         print("  ERROR: no sections")
         return
 
     raw_text = " ".join(s["text"] for s in sections)
     discipline = get_discipline(sections, raw_text)
-    print(f"  discipline : {discipline['discipline']} / {discipline.get('stem_subtype') or discipline.get('humanities_subtype')}")
+    print(
+        f"  discipline : {discipline['discipline']} / {discipline.get('stem_subtype') or discipline.get('humanities_subtype')}"
+    )
 
     print("  extracting rubric...")
-    rubric, usage = extract_rubric(sections, discipline["discipline"], discipline.get("stem_subtype"))
+    rubric, usage = extract_rubric(
+        sections, discipline["discipline"], discipline.get("stem_subtype")
+    )
     print(f"  rubric     :\n{json.dumps(rubric, indent=4)}")
-    print(f"  tokens     : input={usage['input_tokens']} output={usage['output_tokens']} thinking={usage['thinking_tokens']}")
+    print(
+        f"  tokens     : input={usage['input_tokens']} output={usage['output_tokens']} thinking={usage['thinking_tokens']}"
+    )
     print(f"  cost       : ${usage['cost_usd']:.6f}")
 
     for k in total_usage:
@@ -52,7 +65,7 @@ def run(pdf_path: Path):
 
 
 if __name__ == "__main__":
-    for name in ["corpus/A001.pdf", "corpus/A003.pdf"]:
+    for name in ["corpus/A002.pdf"]:
         run(Path(name))
 
     print(f"\n--- TOTAL ---")

@@ -1,7 +1,9 @@
 import os
 import json
 from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_google_genai.chat_models import GoogleRateLimitError
 from langchain_core.messages import HumanMessage
+from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 
 _llm = None
 
@@ -18,6 +20,12 @@ def _get_llm():
             temperature=0,
         )
     return _llm
+
+
+@retry(stop=stop_after_attempt(5), wait=wait_exponential(multiplier=2, min=15, max=60),
+       retry=retry_if_exception_type(GoogleRateLimitError))
+def _invoke(prompt: str):
+    return _get_llm().invoke([HumanMessage(content=prompt)])
 
 
 STEM_PROMPT = """You are extracting structured signals from a STEM academic paper.
@@ -89,7 +97,7 @@ def extract_rubric(sections: list[dict], discipline: str, stem_subtype: str | No
 
     prompt = STEM_PROMPT.format(text=text) if discipline == "stem" else HUMANITIES_PROMPT.format(text=text)
 
-    response = _get_llm().invoke([HumanMessage(content=prompt)])
+    response = _invoke(prompt)
     rubric = _parse_response(response)
     rubric["discipline"] = discipline
     rubric["stem_subtype"] = stem_subtype

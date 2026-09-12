@@ -6,8 +6,11 @@ GROBID_URL = "http://localhost:8070"
 TEI_NS = "http://www.tei-c.org/ns/1.0"
 
 
-def parse_with_grobid(pdf_path: Path) -> list[dict]:
-    """Call GROBID and return a list of {section, text} dicts."""
+def parse_with_grobid(pdf_path: Path) -> tuple[list[dict], dict]:
+    """
+    Call GROBID and return (sections, identifiers).
+    identifiers: {doi, arxiv, title} — whichever are found.
+    """
     with open(pdf_path, "rb") as f:
         response = httpx.post(
             f"{GROBID_URL}/api/processFulltextDocument",
@@ -18,14 +21,26 @@ def parse_with_grobid(pdf_path: Path) -> list[dict]:
     return _extract_sections(response.text)
 
 
-def _extract_sections(tei_xml: str) -> list[dict]:
+def _extract_sections(tei_xml: str) -> tuple[list[dict], dict]:
     root = ET.fromstring(tei_xml)
     sections = []
+    identifiers = {}
+
+    # Extract identifiers
+    for id_el in root.iter(f"{{{TEI_NS}}}idno"):
+        id_type = id_el.get("type", "").lower()
+        if id_el.text and id_type in ("doi", "arxiv"):
+            val = id_el.text.strip()
+            # Normalize arXiv: strip "arXiv:" prefix
+            if id_type == "arxiv":
+                val = val.replace("arXiv:", "").replace("arxiv:", "").strip()
+            identifiers[id_type] = val
 
     # Extract title
     title_el = root.find(f".//{{{TEI_NS}}}titleStmt/{{{TEI_NS}}}title")
     title = title_el.text.strip() if title_el is not None and title_el.text else ""
     if title:
+        identifiers["title"] = title
         sections.append({"section": "_title", "text": title})
 
     # Extract abstract
@@ -46,4 +61,4 @@ def _extract_sections(tei_xml: str) -> list[dict]:
         if text and section_name:
             sections.append({"section": section_name, "text": text})
 
-    return sections
+    return sections, identifiers

@@ -20,7 +20,7 @@ from marginalia.classify.classifier import get_discipline
 if __name__ == "__main__":
     for pdf in sorted(Path("corpus").glob("*.pdf")):
         print(f"\n--- {pdf.name} ---")
-        sections, parser = parse_pdf(pdf)
+        sections, parser, identifiers = parse_pdf(pdf)
         if not sections:
             print("  ERROR: no sections extracted")
             continue

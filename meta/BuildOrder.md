@@ -44,11 +44,14 @@ A research-paper RAG assistant with discipline-aware answers, in-paper rubric ex
 - [x] Humanities branch: engagement with existing scholarship, primary vs. secondary source ratio, counterargument acknowledgment, scope-to-evidence proportionality
 - [x] Store as flags/signals, not quality verdicts
   - Stored in Azure Cosmos DB (`marginalia` db, `rubrics` container, partition key `/paper_id`)
-- [ ] Smoke-test rubric extraction (`smoke_test_03_rubric.py`) — runs one STEM and one humanities paper, prints extracted rubric JSON; references `smoke_test_01_ingest.py` for parse step
+- [x] Smoke-test rubric extraction (`smoke_test_03_rubric.py`) — runs one STEM and one humanities paper, prints extracted rubric JSON; references `smoke_test_01_ingest.py` for parse step
 
 ## 6. External Enrichment (async, per-paper)
-- [ ] Primary source: Semantic Scholar API for citation context and sentiment (approving vs. critical citations)
-- [ ] Secondary source: web search for pop-sci coverage (Nature News, The Conversation, Quanta) and social/discourse signals, with credibility filtering
+- [x] Primary source: Semantic Scholar API for citation context and sentiment (approving vs. critical citations)
+  - Lookup chain: arXiv ID → DOI → ACL ID → title search. Humanities papers use DOI or title search.
+  - Sentiment (approving/critical/neutral) classified by Gemini per context sentence — Semantic Scholar only provides intent (background/method/result), not sentiment
+  - isInfluential flag and intents also stored per citation
+- [x] Secondary source: web search for pop-sci coverage (Nature News, The Conversation, Quanta) and social/discourse signals, with credibility filtering
 - [ ] Every external claim stored with a source link — no summarizing without citation
 - [ ] Run once per paper (on ingestion or on-demand), cache the result
 - [ ] Smoke-test external enrichment (`smoke_test_04_enrichment.py`) — runs one paper through Semantic Scholar + web search, prints returned signals with source links

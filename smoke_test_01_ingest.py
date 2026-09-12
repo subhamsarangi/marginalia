@@ -21,14 +21,15 @@ from marginalia.ingest.vector_store import push_chunks
 from marginalia.classify.classifier import get_discipline
 
 
-def parse_pdf(pdf_path: Path) -> tuple[list[dict], str] | tuple[None, None]:
-    """Returns (sections, parser_name) or (None, None) on total failure."""
+def parse_pdf(pdf_path: Path) -> tuple[list[dict], str, dict] | tuple[None, None, None]:
+    """Returns (sections, parser_name, identifiers) or (None, None, None) on total failure."""
     try:
         print("[GROBID] sending request...")
-        sections = parse_with_grobid(pdf_path)
+        result = parse_with_grobid(pdf_path)
+        sections, identifiers = result
         if sections:
             print(f"[GROBID] {len(sections)} sections")
-            return sections, "grobid"
+            return sections, "grobid", identifiers
     except Exception as e:
         print(f"[GROBID] failed: {e}")
 
@@ -36,22 +37,22 @@ def parse_pdf(pdf_path: Path) -> tuple[list[dict], str] | tuple[None, None]:
     sections = parse_with_pymupdf(pdf_path)
     if sections is not None:
         print(f"[pymupdf4llm] {len(sections)} sections")
-        return sections, "pymupdf4llm"
+        return sections, "pymupdf4llm", {}
     print("[pymupdf4llm] degenerate output, falling back to Docling")
 
     print("[Docling] parsing...")
     sections = parse_with_docling(pdf_path)
     if sections:
         print(f"[Docling] {len(sections)} sections")
-        return sections, "docling"
+        return sections, "docling", {}
 
-    return None, None
+    return None, None, None
 
 
 def ingest(pdf_path: Path):
     print(f"\n--- Ingesting: {pdf_path.name} ---")
 
-    sections, parser = parse_pdf(pdf_path)
+    sections, parser, identifiers = parse_pdf(pdf_path)
     if not sections:
         print("ERROR: all parsers failed, no sections extracted")
         return

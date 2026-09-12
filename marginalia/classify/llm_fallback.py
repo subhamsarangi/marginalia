@@ -1,6 +1,9 @@
 import os
+import json
 from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_google_genai.chat_models import GoogleRateLimitError
 from langchain_core.messages import HumanMessage
+from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 
 _llm = None
 
@@ -16,6 +19,12 @@ def _get_llm():
     return _llm
 
 
+@retry(stop=stop_after_attempt(5), wait=wait_exponential(multiplier=2, min=15, max=60),
+       retry=retry_if_exception_type(GoogleRateLimitError))
+def _invoke(prompt: str):
+    return _get_llm().invoke([HumanMessage(content=prompt)])
+
+
 def classify_with_llm(sections: list[dict]) -> dict:
     """LLM fallback for ambiguous papers. Returns same shape as deterministic.classify()."""
     section_names = [s["section"] for s in sections]
@@ -29,7 +38,7 @@ Text sample: {sample_text}
 Reply with a JSON object only, no markdown:
 {{"discipline": "stem" or "humanities", "stem_subtype": "empirical"|"review"|"unknown"|null, "humanities_subtype": "argumentative"|"historical"|"interpretive"|"unknown"|null, "confidence": 0.0-1.0, "reason": "one sentence"}}"""
 
-    response = _get_llm().invoke([HumanMessage(content=prompt)])
+    response = _invoke(prompt)
     import json
     content = response.content
     if isinstance(content, list):
